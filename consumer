@@ -1,0 +1,52 @@
+import tweepy
+from textblob import TextBlob
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Twitter API credentials (replace with your own)
+consumer_key = 'your_consumer_key'
+consumer_secret = 'your_consumer_secret'
+access_token = 'your_access_token'
+access_token_secret = 'your_access_token_secret'
+
+# Authenticate to Twitter API
+auth = tweepy.OAuth1UserHandler(consumer_key, consumer_secret, access_token, access_token_secret)
+
+# Create API object
+api = tweepy.API(auth)
+
+# Function to collect tweets and their sentiments
+def collect_tweets(keyword, num_tweets):
+    tweets = []
+    for tweet in tweepy.Cursor(api.search_tweets, q=keyword, lang='en').items(num_tweets):
+        tweets.append(tweet.text)
+    return tweets
+
+# Function to perform sentiment analysis
+def analyze_sentiment(tweet):
+    analysis = TextBlob(tweet)
+    return analysis.sentiment.polarity
+
+# Function to visualize sentiment distribution
+def visualize_sentiment(sentiments):
+    sns.histplot(sentiments, bins=20, kde=True)
+    plt.title('Sentiment Distribution')
+    plt.xlabel('Sentiment Polarity')
+    plt.ylabel('Frequency')
+    plt.show()
+
+# Main function
+def main():
+    # Collect tweets
+    keyword = input("Enter a keyword to search tweets: ")
+    num_tweets = int(input("Enter the number of tweets to collect: "))
+    tweets = collect_tweets(keyword, num_tweets)
+    
+    # Analyze sentiments
+    sentiments = [analyze_sentiment(tweet) for tweet in tweets]
+    
+    # Visualize sentiment distribution
+    visualize_sentiment(sentiments)
+
+if _name_ == "_main_":
+    main()
